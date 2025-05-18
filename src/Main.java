@@ -147,8 +147,8 @@ class JuegoBase implements Sujeto{
                     grupoTableros.imprimir();
 
 
-                    int resultado = grupoTableros.revisarGanador();
-                    System.out.println("Resultado");
+                    int resultado = grupoTableros.getTablero(x).revisarGanador();
+                    System.out.println("Resultado" +resultado);
                     if (resultado == 1 || resultado == 2) {
                         System.out.println("¡Jugador " + resultado + " ha ganado!");
                         break;

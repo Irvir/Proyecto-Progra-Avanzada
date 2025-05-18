@@ -160,7 +160,7 @@ class GrupoTableros implements ComponenteTablero{
         // Revisa filas
         for (int i = 0; i < 3; i++) {
             if (meta[i][0] != -1 && meta[i][0] == meta[i][1] && meta[i][1] == meta[i][2]) {
-                return meta[i][0]; // Retorna 1 o 2, correctamente
+                return meta[i][0];
             }
         }
 
