@@ -38,7 +38,7 @@ class JuegoBase implements Sujeto{
     String tipoJ1;
     String nombreJ2;
     String tipoJ2;
-
+    //
     ArrayList<Observer> observers = new ArrayList<>();
 
     public JuegoBase(String nombreJ1,String  tipoJ1,String nombreJ2,String tipoJ2){
