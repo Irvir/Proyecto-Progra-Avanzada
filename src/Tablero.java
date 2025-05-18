@@ -34,7 +34,12 @@ class Tablero implements Observer {
         }
         return false;
     }
-
+    public char getCasilla(int fila, int columna){
+        return tablero[fila][columna];
+    }
+    public void setCasilla(int fila, int columna,char simbolo){
+        tablero[fila][columna] = simbolo;
+    }
     public char[][] getTablero() {
         return tablero;
     }
@@ -75,35 +80,106 @@ class Tablero implements Observer {
 }
 class TableroIndividual implements ComponenteTablero{
     Tablero tablero;
-
+    public TableroIndividual(){
+        tablero = new Tablero();
+        tablero.crearTablero();
+    }
     @Override
     public void imprimir() {
-        System.out.println(tablero);
+        tablero.imprimirTablero();
     }
 
     @Override
     public int revisarGanador() {
-        tablero.tableroGanado();
-        return -1;
+       return tablero.tableroGanado();
     }
+    public boolean marcar(int posicion, char simbolo){
+        return tablero.marcarCasilla(posicion,simbolo);
+    }
+
+    public Tablero getTablero() {
+        return tablero;
+    }
+
+    @Override
+    public boolean marcarCasilla(int x, int posicion, char simbolo) {
+        int i = (posicion - 1) / 3;
+        int j = (posicion - 1) % 3;
+        if (tablero.tablero[i][j] == '-') {
+            tablero.tablero[i][j] = simbolo;
+
+            return true;
+        }
+        return false;
+    }
+
+
+
 }
 class GrupoTableros implements ComponenteTablero{
     private ArrayList<ComponenteTablero> listaTablero = new ArrayList<>();
-    public GrupoTableros(ComponenteTablero t){
-        listaTablero.add(t);
+    public GrupoTableros(){
+        for (int i=0;i<9;i++){
+            listaTablero.add(new TableroIndividual());
+        }
+    }
+    public ComponenteTablero getTablero(int index){
+        return listaTablero.get(index);
     }
 
     @Override
     public void imprimir() {
-        System.out.println(listaTablero);
+        for (int i = 0; i < 9; i++) {
+            System.out.println("Tablero " + i + ":");
+            listaTablero.get(i).imprimir();
+            System.out.println();
+        }
+    }
+    @Override
+    public boolean marcarCasilla(int x,int posicion, char simbolo) {
+        int i = (posicion - 1) / 3;
+        int j = (posicion - 1) % 3;
+        TableroIndividual t = (TableroIndividual) listaTablero.get(x);
+
+        if (t.getTablero().getCasilla(i,j ) == '-') {
+            t.getTablero().setCasilla(i, j, simbolo);
+            return true;
+        }
+        return false;
     }
 
     @Override
     public int revisarGanador() {
-        for (ComponenteTablero tablero: listaTablero){
-            int resultado = tablero.revisarGanador();
-            if (resultado!=-1)return resultado;
+        int[][] meta = new int[3][3];
+
+        for (int i = 0; i < 9; i++) {
+            int resultado = listaTablero.get(i).revisarGanador();
+            meta[i / 3][i % 3] = resultado;
         }
-        return -1;
+
+        // Revisa filas
+        for (int i = 0; i < 3; i++) {
+            if (meta[i][0] != -1 && meta[i][0] == meta[i][1] && meta[i][1] == meta[i][2]) {
+                return meta[i][0]; // Retorna 1 o 2, correctamente
+            }
+        }
+
+        // Revisa columnas
+        for (int j = 0; j < 3; j++) {
+            if (meta[0][j] != -1 && meta[0][j] == meta[1][j] && meta[1][j] == meta[2][j]) {
+                return meta[0][j];
+            }
+        }
+
+        // Diagonales
+        if (meta[0][0] != -1 && meta[0][0] == meta[1][1] && meta[1][1] == meta[2][2]) {
+            return meta[0][0];
+        }
+        if (meta[0][2] != -1 && meta[0][2] == meta[1][1] && meta[1][1] == meta[2][0]) {
+            return meta[0][2];
+        }
+
+        return -1; // Nadie ha ganado todavía
     }
+
 }

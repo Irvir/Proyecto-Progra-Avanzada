@@ -15,6 +15,7 @@ interface Sujeto{
 interface ComponenteTablero{
     void imprimir();
     int revisarGanador();
+    boolean marcarCasilla(int x, int y, char simbolo);
 
 }
 interface Jugador{
@@ -24,6 +25,9 @@ interface Jugador{
 }
 
 class JuegoBase implements Sujeto{
+    Tablero metaTablero;
+    GrupoTableros grupoTableros;
+
     int moneda;
     Jugador jugador1;
     Jugador jugador2;
@@ -33,12 +37,12 @@ class JuegoBase implements Sujeto{
     char simboloGanador;
     char simboloPerdedor ;
     Tablero tablero;
-
+    ArrayList<Tablero> listTablero = new ArrayList<>();
     String nombreJ1;
     String tipoJ1;
     String nombreJ2;
     String tipoJ2;
-    //
+
     ArrayList<Observer> observers = new ArrayList<>();
 
     public JuegoBase(String nombreJ1,String  tipoJ1,String nombreJ2,String tipoJ2){
@@ -48,6 +52,10 @@ class JuegoBase implements Sujeto{
         this.tipoJ2 = tipoJ2;
         this.tablero = new Tablero();
         agregarObserver(tablero);
+        grupoTableros = new GrupoTableros();
+        metaTablero = new Tablero();
+        metaTablero.crearTablero();
+
     }
 
     @Override
@@ -68,20 +76,35 @@ class JuegoBase implements Sujeto{
     }
 
     void comenzarJuego(String nombreJ1,String nombreJ2) {
+
+        metaTablero = new Tablero();
+        metaTablero.crearTablero();
+
         Random random = new Random();
         moneda = random.nextInt(2);
-        ArrayList<Tablero> listTablero= new ArrayList<>();
+        for (int i = 0; i < 9; i++) {
+            listTablero.add(new Tablero());
+        }
+        ;
         if (moneda == 0) {
             System.out.println("¿Qué símbolo ('x' ó 'o') desea el Jugador 1?");
-            simboloGanador = input.nextLine().charAt(0);
+            if (input.hasNextLine()) {
+                simboloGanador = input.nextLine().charAt(0);
+            } else {
+                System.out.println("No hay entrada disponible.");
+            }
             simboloPerdedor = (simboloGanador == 'x') ? 'o' : 'x';
 
         } else {
             if (tipoJ2.equals("humano")) {
                 System.out.println("¿Qué símbolo ('x' ó 'o') desea el Jugador 2?");
-                simboloGanador = input.nextLine().charAt(0);
-                if (simboloGanador == 'x'){
-                    simboloPerdedor='o';
+                if (input.hasNextLine()) {
+                    simboloGanador = input.nextLine().charAt(0);
+                } else {
+                    System.out.println("No hay entrada disponible.");
+                }
+                if (simboloGanador == 'x') {
+                    simboloPerdedor = 'o';
                 }
 
             } else {
@@ -97,60 +120,181 @@ class JuegoBase implements Sujeto{
 
         tablero = new Tablero();
         tablero.crearTablero();
-
+        /*
+        x = Plano
+        y = Cuadrante [1-9]
+         */
+        String[] linea;
+        int x;
         int y;
+        System.out.println("FORMATO DE ENTRADA: x (plano) (espacio) y(cuadrante)");
+        int aux=0;
+        moneda = 0;
         if (moneda == 0) {
-            while (true) {
+            while (aux != -1) {
                 System.out.println("Escribe coordenada Jugador 1: ");
-                y = input2.nextInt();
-                tablero.marcarCasilla(y, simboloPerdedor);
-                if (tablero.tableroGanado() != -1) {
-                    break;
-                }
-                tablero.imprimirTablero();
-                System.out.println("Escribe coordenada Jugador 2: ");
-                y = input2.nextInt();
-                tablero.marcarCasilla(y, simboloGanador);
+                if (input.hasNextLine()) {
+                    linea = input.nextLine().split(" ");
+                    x = Integer.parseInt(linea[0]);
+                    y = Integer.parseInt(linea[1]);
+                    boolean marcado = grupoTableros.marcarCasilla(x, y, jugador1.getSimbolo());
 
-                tablero.imprimirTablero();
-
-            }
-        } else {
-            if (tipoJ2 == "CPU-easy") {
-                while (true) {
-                    System.out.println("CPU Jugando: ");
-                    CPUFacil cpuFacil = new CPUFacil(simboloGanador);
-                    tablero.marcarCasilla(cpuFacil.hacerJugada(tablero.getTablero()), 'x');
-                    if (tablero.tableroGanado() != -1) {
-                        break;
+                    if (!marcado) {
+                        System.out.println("Casilla ocupada. Intenta otra vez.");
+                        continue;
                     }
 
-                    tablero.imprimirTablero();
-                    System.out.println("Escribe coordenada Jugador 1: ");
-                    y = input.nextInt();
-                    tablero.marcarCasilla(y, simboloPerdedor);
-                    tablero.imprimirTablero();
+                    grupoTableros.imprimir();
 
-                }
-            }
-            if (tipoJ2 == "humano"){
-                while (true) {
-                    System.out.println("ooo");
+
+                    int resultado = grupoTableros.revisarGanador();
+                    System.out.println("Resultado");
+                    if (resultado == 1 || resultado == 2) {
+                        System.out.println("¡Jugador " + resultado + " ha ganado!");
+                        break;
+                    }
                     System.out.println("Escribe coordenada Jugador 2: ");
-                    y = input2.nextInt();
-                    tablero.marcarCasilla(y, simboloGanador);
-                    if (tablero.tableroGanado() != -1) {
-                        break;
-                    }
-                    tablero.imprimirTablero();
-                    System.out.println("Escribe coordenada Jugador 1: ");
-                    y = input2.nextInt();
-                    tablero.marcarCasilla(y, simboloPerdedor);
-                    if (tablero.tableroGanado() != -1) {
-                        break;
-                    }
-                    tablero.imprimirTablero();
+                    linea = input.nextLine().split(" ");
+                    x = Integer.parseInt(linea[0]);
+                    y = Integer.parseInt(linea[1]);
 
+                    marcado = grupoTableros.marcarCasilla(x, y, jugador2.getSimbolo());
+
+                    if (!marcado) {
+                        System.out.println("Casilla ocupada. Intenta otra vez.");
+                        continue;
+                    }
+
+                    grupoTableros.imprimir();
+                    resultado = grupoTableros.revisarGanador();
+                    if (resultado == 1 || resultado == 2) {
+                        System.out.println("¡Jugador " + resultado + " ha ganado!");
+                        break;
+                    }
+                }
+
+
+
+
+            }
+
+        } else{
+                Random random1 = new Random();
+                int planoPlanoRandom = random1.nextInt(9);
+                if (tipoJ2.equals("CPU-easy")) {
+                    while (true) {
+                        System.out.println("CPU Jugando: ");
+                        CPUFacil cpuFacil = new CPUFacil(simboloGanador);
+                        System.out.println("CPU Escogió: Plano: " + planoPlanoRandom + "Cuadrante: " + cpuFacil.hacerJugada(listTablero.get(planoPlanoRandom).getTablero()));
+                        listTablero.get(planoPlanoRandom).marcarCasilla(cpuFacil.hacerJugada(tablero.getTablero()), 'x');
+                        for (Tablero t : listTablero) {
+                            t.imprimirTablero();
+                        }
+
+                        notificarObserver();
+                        int resultado = listTablero.get(planoPlanoRandom).tableroGanado();
+                        if (resultado != -1) {
+                            char simbolo = (resultado == 1) ? 'x' : 'o';
+                            int fila = planoPlanoRandom / 3;
+                            int col = planoPlanoRandom % 3;
+                            if (metaTablero.getCasilla(fila, col) == '-') {
+                                metaTablero.setCasilla(fila, col,simbolo);
+                            }
+                            // Revisar si alguien ganó el tablero general
+                            if (verificarMetaGanador() != '-') {
+                                System.out.println("¡Jugador con símbolo " + simbolo + " ha ganado el tablero general!");
+                                break;
+                            }
+                        }
+                        if (listTablero.get(planoPlanoRandom).tableroGanado() != -1) {
+                            break;
+                        }
+                        listTablero.get(planoPlanoRandom).imprimirTablero();
+                        System.out.println("Escribe coordenada Jugador 1: ");
+                        linea = input.nextLine().split(" ");
+                        x = Integer.parseInt(linea[0]);
+                        y = Integer.parseInt(linea[1]);
+                        listTablero.get(x).marcarCasilla(y, simboloPerdedor);
+                        for (Tablero t : listTablero) {
+                            t.imprimirTablero();
+                        }
+
+                        notificarObserver();
+                        resultado = listTablero.get(x).tableroGanado();
+                        if (resultado != -1) {
+                            char simbolo = (resultado == 1) ? 'x' : 'o';
+                            int fila = x / 3;
+                            int col = x % 3;
+                            if (metaTablero.getCasilla(fila, col)== '-') {
+                                metaTablero.setCasilla(fila, col,simbolo);
+                            }
+                            // Revisar si alguien ganó el tablero general
+                            if (verificarMetaGanador() != '-') {
+                                System.out.println("¡Jugador con símbolo " + simbolo + " ha ganado el tablero general!");
+                                break;
+                            }}
+                        listTablero.get(x).imprimirTablero();
+
+                    }
+                }
+                if (tipoJ2.equals("humano")) {
+                    while (true) {
+                        System.out.println("Escribe coordenada Jugador 2: ");
+                        linea = input.nextLine().split(" ");
+                        x = Integer.parseInt(linea[0]);
+                        y = Integer.parseInt(linea[1]);
+                        listTablero.get(x).marcarCasilla(y, simboloGanador);
+                        for (Tablero t : listTablero) {
+                            t.imprimirTablero();
+                        }
+
+                        notificarObserver();
+                        int resultado = listTablero.get(x).tableroGanado();
+                        if (resultado != -1) {
+                            char simbolo = (resultado == 1) ? 'x' : 'o';
+                            int fila = x / 3;
+                            int col = x % 3;
+                            if (metaTablero.getCasilla(fila, col) == '-') {
+                                metaTablero.setCasilla(fila, col, simbolo);
+                            }
+                            // Revisar si alguien ganó el tablero general
+                            if (verificarMetaGanador() != '-') {
+                                System.out.println("¡Jugador con símbolo " + simbolo + " ha ganado el tablero general!");
+                                break;
+                            }}
+                        if (listTablero.get(x).tableroGanado() != -1) {
+                            break;
+                        }
+                        listTablero.get(x).imprimirTablero();
+                        System.out.println("Escribe coordenada Jugador 1: ");
+                        linea = input.nextLine().split(" ");
+                        x = Integer.parseInt(linea[0]);
+                        y = Integer.parseInt(linea[1]);
+                        listTablero.get(x).marcarCasilla(y, simboloPerdedor);
+                        for (Tablero t : listTablero) {
+                            t.imprimirTablero();
+                        }
+
+                        notificarObserver();
+                        resultado = listTablero.get(x).tableroGanado();
+                        if (resultado != -1) {
+                            char simbolo = (resultado == 1) ? 'x' : 'o';
+                            int fila = x / 3;
+                            int col = x % 3;
+                            if (metaTablero.getCasilla(fila, col) == '-') {
+                                metaTablero.setCasilla(fila, col,simbolo);
+                            }
+                            // Revisar si alguien ganó el tablero general
+                            if (verificarMetaGanador() != '-') {
+                                System.out.println("¡Jugador con símbolo " + simbolo + " ha ganado el tablero general!");
+                                break;
+                            }}
+                        if (listTablero.get(x).tableroGanado() != -1) {
+                            break;
+                        }
+                        listTablero.get(x).imprimirTablero();
+
+                    }
 
 
                 }
@@ -159,12 +303,40 @@ class JuegoBase implements Sujeto{
             }
 
 
+
+
+    }
+    char verificarMetaGanador() {
+        // filas
+        for (int i = 0; i < 3; i++) {
+            if (metaTablero.getCasilla(i,0 ) != '-' && metaTablero.getCasilla(i,0 ) == metaTablero.getCasilla(i,1 )
+                    && metaTablero.getCasilla(i,1) == metaTablero.getCasilla(i,2 )) {
+                return metaTablero.getCasilla(i,0 );
+            }
         }
 
+        // columnas
+        for (int j = 0; j < 3; j++) {
+            if (metaTablero.getCasilla(0,j ) != '-' && metaTablero.getCasilla(0,j ) == metaTablero.getCasilla(1,j )
+                    && metaTablero.getCasilla(1,j ) == metaTablero.getCasilla(2,j )) {
+                return metaTablero.getCasilla(0,j );
+            }
+        }
 
-        tablero.imprimirTablero();
-        notificarObserver();
+        // diagonales
+        if (metaTablero.getCasilla(0,0 ) != '-' && metaTablero.getCasilla(0,0 )==
+                metaTablero.getCasilla(1,1 ) && metaTablero.getCasilla(1,1 ) ==metaTablero.getCasilla(2,2 )) {
+            return metaTablero.getCasilla(0,0 );
+        }
+
+        if (metaTablero.getCasilla(0,2 ) != '-' &&metaTablero.getCasilla(0,2 ) == metaTablero.getCasilla(1,1 )
+                && metaTablero.getCasilla(1,1 ) == metaTablero.getCasilla(2,0 )) {
+            return metaTablero.getCasilla(0,2 );
+        }
+
+        return '-'; // aún no hay ganador
     }
+
 
 }
 
