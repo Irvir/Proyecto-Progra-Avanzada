@@ -135,6 +135,7 @@ class JuegoBase implements Sujeto{
             System.out.println(j);}
 
         if (moneda == 0) {
+
             if (tipoJ2.equals("humano"))while (aux != -1) {
                 System.out.println("Escribe coordenada Jugador 1: ");
                 if (input.hasNextLine()) {
@@ -188,6 +189,7 @@ class JuegoBase implements Sujeto{
                     System.out.println("Escribe coordenada Jugador 2: ");
                     linea = input.nextLine().split(" ");
                     x = Integer.parseInt(linea[0]);
+
                     y = Integer.parseInt(linea[1]);
 
                     marcado = grupoTableros.marcarCasilla(x, y, jugador2.getSimbolo());

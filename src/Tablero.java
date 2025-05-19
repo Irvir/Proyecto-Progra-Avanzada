@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 class Tablero implements Observer {
-    JuegoBase juego;
-    char[][] tablero = new char[3][3];
+    private JuegoBase juego;
+    private char[][] tablero = new char[3][3];
 
     void crearTablero() {
         for (int i = 0; i < 3; i++) {
@@ -131,8 +131,8 @@ class TableroIndividual implements ComponenteTablero{
     public boolean marcarCasilla(int x, int posicion, char simbolo) {
         int i = (posicion - 1) / 3;
         int j = (posicion - 1) % 3;
-        if (tablero.tablero[i][j] == '-') {
-            tablero.tablero[i][j] = simbolo;
+        if (tablero.getTablero()[i][j] == '-') {
+            tablero.getTablero()[i][j] = simbolo;
 
             return true;
         }
