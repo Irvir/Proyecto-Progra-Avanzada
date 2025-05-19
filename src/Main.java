@@ -28,8 +28,6 @@ interface Jugador extends Serializable {
 class JuegoBase implements Sujeto{
     Tablero metaTablero;
     GrupoTableros grupoTableros;
-
-    int moneda;
     Jugador jugador1;
     Jugador jugador2;
     Scanner input = new Scanner(System.in);
@@ -82,9 +80,19 @@ class JuegoBase implements Sujeto{
         metaTablero.crearTablero();
 
         Random random = new Random();
-        moneda = random.nextInt(2);
+        int dado1 = random.nextInt(6)+1;
+        int dado2 = random.nextInt(6)+1;
+        int resultadoDado1 = dado1+dado2;
 
-        if (moneda == 0) {
+        System.out.println("Lanzando los dados... Para el J1\nDado 1: "+dado1+"Dado 2: "+dado2+"\n Resultado"+ resultadoDado1);
+        dado1 = random.nextInt(6)+1;
+        dado2 = random.nextInt(6)+1;
+        int resultadoDado2 = dado1 + dado2;
+
+        System.out.println("Lanzando los dados... Para el J2\nDado 1: "+dado1+"Dado 2: "+dado2+"\n Resultado"+ resultadoDado2);
+
+
+        if (resultadoDado1>resultadoDado2) {
             System.out.println("¿Qué símbolo ('x' ó 'o') desea el Jugador 1?");
             if (input.hasNextLine()) {
                 simboloGanador = input.nextLine().charAt(0);
@@ -134,7 +142,7 @@ class JuegoBase implements Sujeto{
         for (Jugador j : jugadores) {
             System.out.println(j);}
 
-        if (moneda == 0) {
+        if (resultadoDado1>resultadoDado2) {
 
             if (tipoJ2.equals("humano"))while (aux != -1) {
                 System.out.println("Escribe coordenada Jugador 1: ");
