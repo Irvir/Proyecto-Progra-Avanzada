@@ -84,6 +84,8 @@ class TableroIndividual implements ComponenteTablero{
         tablero = new Tablero();
         tablero.crearTablero();
     }
+
+
     @Override
     public void imprimir() {
         tablero.imprimirTablero();

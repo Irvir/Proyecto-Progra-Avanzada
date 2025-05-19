@@ -1,10 +1,10 @@
+import java.io.Serializable;
 import java.util.Random;
 import java.util.Scanner;
 
-class JugadorHumano implements Jugador{
+class JugadorHumano implements Jugador, Serializable {
     private String nombre;
     private char simbolo;
-    Scanner scanner = new Scanner(System.in);
 
     private int ganadas, perdidas, empatadas;
     public JugadorHumano(String nombre, char simbolo){
@@ -25,12 +25,25 @@ class JugadorHumano implements Jugador{
 
     @Override
     public int hacerJugada(char[][] tablero) {
-        System.out.println("Ingrese la casilla de la jugada: 1-9: ");
-        return scanner.nextInt();
+        return 1;
 
     }
+
+    @Override
+    public String toString() {
+        return "JugadorHumano{" +
+                "nombre='" + nombre + '\'' +
+                ", simbolo=" + simbolo +
+                ", ganadas=" + ganadas +
+                ", perdidas=" + perdidas +
+                ", empatadas=" + empatadas +
+                '}';
+    }
+    public void incrementarGanadas() {
+        ganadas++;
+    }
 }
-class CPUFacil implements Jugador{
+class CPUFacil implements Jugador,Serializable{
     private String nombre = "CPU";
     private char simbolo;
     Random random = new Random();
@@ -66,8 +79,22 @@ class CPUFacil implements Jugador{
         int j = (pos - 1) % 3;
         return tablero[i][j] == '-';
     }
+
+    @Override
+    public String toString() {
+        return "cpu-easy{" +
+                "nombre='" + nombre + '\'' +
+                ", simbolo=" + simbolo +
+                ", ganadas=" + ganadas +
+                ", perdidas=" + perdidas +
+                ", empatadas=" + empatadas +
+                '}';
+    }
+    public void incrementarGanadas() {
+        ganadas++;
+    }
 }
-class CpuDificil implements Jugador {
+class CpuDificil implements Jugador,Serializable {
     private String nombre = "CPU";
     private char simbolo;
     private int ganadas, perdidas, empatadas;
@@ -99,7 +126,22 @@ class CpuDificil implements Jugador {
             }
         }
 
+
         return -1;
+    }
+
+    @Override
+    public String toString() {
+        return "cpu-hard{" +
+                "nombre='" + nombre + '\'' +
+                ", simbolo=" + simbolo +
+                ", ganadas=" + ganadas +
+                ", perdidas=" + perdidas +
+                ", empatadas=" + empatadas +
+                '}';
+    }
+    public void incrementarGanadas() {
+        ganadas++;
     }
 }
 class JugadorFactory{
