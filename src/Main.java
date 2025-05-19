@@ -168,7 +168,7 @@ class JuegoBase implements Sujeto{
 
 
 // --------------------------------------------------------------------------------------------------
-                    /*System.out.println("Escribe coordenada Jugador 2: ");
+                    System.out.println("Escribe coordenada Jugador 2: ");
                     linea = input.nextLine().split(" ");
                     x = Integer.parseInt(linea[0]);
                     y = Integer.parseInt(linea[1]);
@@ -198,12 +198,12 @@ class JuegoBase implements Sujeto{
                         System.out.println("¡Jugador " + resultado + " ha ganado!");
                         break;
                     }
-                    revisionMetaPlano = metaTablero.tableroGanado();
-                    if (revisionMetaPlano == 1 || resultado == 2){
-                        System.out.println("¡Jugador " + resultado + " ha ganado!");
+                    revisionMetaPlano = grupoTableros.revisarGanador();
+                    if (revisionMetaPlano == 1 || revisionMetaPlano == 2){
+                        System.out.println("¡Jugador " + revisionMetaPlano + " ha ganado!");
                         aux = revisionMetaPlano;
                     }
-                     */
+
 
 
                 }

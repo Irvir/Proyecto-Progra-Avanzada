@@ -178,38 +178,22 @@ class GrupoTableros implements ComponenteTablero{
     public int revisarGanador() {
         int[][] meta = new int[3][3];
 
-        // Llenar meta con los ganadores de los tableros individuales
+        // Inicializar meta con -1
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                meta[i][j] = -1;
+            }
+        }
+
+        // Guardar los resultados de los tableros individuales
         for (int i = 0; i < 9; i++) {
             TableroIndividual t = (TableroIndividual) listaTablero.get(i);
-            int ganador = t.getTablero().tableroGanado();
-            meta[i / 3][i % 3] = ganador;
+            meta[i / 3][i % 3] = t.getTablero().tableroGanado();
         }
 
-        // Revisar filas
-        for (int i = 0; i < 3; i++) {
-            if (meta[i][0] != -1 && meta[i][0] == meta[i][1] && meta[i][1] == meta[i][2]) {
-                return meta[i][0];
-            }
-        }
-
-        // Revisar columnas
-        for (int j = 0; j < 3; j++) {
-            if (meta[0][j] != -1 && meta[0][j] == meta[1][j] && meta[1][j] == meta[2][j]) {
-                return meta[0][j];
-            }
-        }
-
-        // Revisar diagonales
-        if (meta[0][0] != -1 && meta[0][0] == meta[1][1] && meta[1][1] == meta[2][2]) {
-            return meta[0][0];
-        }
-        if (meta[0][2] != -1 && meta[0][2] == meta[1][1] && meta[1][1] == meta[2][0]) {
-            return meta[0][2];
-        }
-
-        return -1; // No hay ganador
+        // Verificar filas, columnas y diagonales
+        return verificarMatriz(meta);
     }
-
     private int verificarMatriz(int[][] meta) {
         for (int i = 0; i < 3; i++) {
             if (meta[i][0] != -1 && meta[i][0] == meta[i][1] && meta[i][1] == meta[i][2]) return meta[i][0];
