@@ -37,7 +37,7 @@ class JuegoBase implements Sujeto{
     char simboloGanador;
     char simboloPerdedor ;
     Tablero tablero;
-    ArrayList<Tablero> listTablero = new ArrayList<>();
+    ArrayList<Integer> listTablero = new ArrayList<>();
     String nombreJ1;
     String tipoJ1;
     String nombreJ2;
@@ -82,10 +82,7 @@ class JuegoBase implements Sujeto{
 
         Random random = new Random();
         moneda = random.nextInt(2);
-        for (int i = 0; i < 9; i++) {
-            listTablero.add(new Tablero());
-        }
-        ;
+
         if (moneda == 0) {
             System.out.println("¿Qué símbolo ('x' ó 'o') desea el Jugador 1?");
             if (input.hasNextLine()) {
@@ -146,14 +143,32 @@ class JuegoBase implements Sujeto{
 
                     grupoTableros.imprimir();
 
-
+                    // Revisión del tablero individual
                     int resultado = grupoTableros.getTablero(x).revisarGanador();
-                    System.out.println("Resultado" +resultado);
-                    if (resultado == 1 || resultado == 2) {
-                        System.out.println("¡Jugador " + resultado + " ha ganado!");
+
+                    TableroIndividual tableroInd = (TableroIndividual) grupoTableros.getTablero(x);
+                    char[][] plano = tableroInd.getTablero().getTablero();
+                    char v = GrupoTableros.verificarGanador(plano);
+                    System.out.println("Resultado"+v);
+                    listTablero.add(x);
+
+                    if (v == 'x' || v == 'o') {
+                        System.out.println("¡Jugador " + jugador1.getNombre() + " ha ganado el tablero " + x + "!");
+                    }
+
+                    // Revisar inmediatamente si esto hace que gane el meta-tablero
+                    int revisionMetaPlano = grupoTableros.revisarGanador();
+                    if (revisionMetaPlano == 1 || revisionMetaPlano == 2) {
+                        System.out.println("¡Jugador " + revisionMetaPlano + " ha ganado el meta-juego!");
+                        aux = revisionMetaPlano;  // Esto detiene el bucle
                         break;
                     }
-                    System.out.println("Escribe coordenada Jugador 2: ");
+
+
+
+
+// --------------------------------------------------------------------------------------------------
+                    /*System.out.println("Escribe coordenada Jugador 2: ");
                     linea = input.nextLine().split(" ");
                     x = Integer.parseInt(linea[0]);
                     y = Integer.parseInt(linea[1]);
@@ -166,12 +181,33 @@ class JuegoBase implements Sujeto{
                     }
 
                     grupoTableros.imprimir();
-                    resultado = grupoTableros.revisarGanador();
+                    resultado = grupoTableros.getTablero(x).revisarGanador();
+                    System.out.println("Resultado 2: " +resultado +"Tablero 2: " +x);
+
+                    tableroInd = (TableroIndividual) grupoTableros.getTablero(x);
+                    plano = tableroInd.getTablero().getTablero();
+                    v = GrupoTableros.verificarGanador(plano);
+                    System.out.println("Resultado"+v);
+                    listTablero.add(x);
+
+                    if (v == 'x' || v == 'o') {
+                        System.out.println("¡Jugador " + jugador2.getNombre() + " ha ganado el tablero " + x + "!");
+                    }
+
                     if (resultado == 1 || resultado == 2) {
                         System.out.println("¡Jugador " + resultado + " ha ganado!");
                         break;
                     }
+                    revisionMetaPlano = metaTablero.tableroGanado();
+                    if (revisionMetaPlano == 1 || resultado == 2){
+                        System.out.println("¡Jugador " + resultado + " ha ganado!");
+                        aux = revisionMetaPlano;
+                    }
+                     */
+
+
                 }
+
 
 
 
@@ -179,6 +215,7 @@ class JuegoBase implements Sujeto{
             }
 
         } else{
+            /*
                 Random random1 = new Random();
                 int planoPlanoRandom = random1.nextInt(9);
                 if (tipoJ2.equals("CPU-easy")) {
@@ -297,9 +334,11 @@ class JuegoBase implements Sujeto{
                     }
 
 
+
+
                 }
 
-
+            */
             }
 
 

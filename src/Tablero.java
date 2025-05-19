@@ -91,7 +91,31 @@ class TableroIndividual implements ComponenteTablero{
 
     @Override
     public int revisarGanador() {
-       return tablero.tableroGanado();
+        int[][] meta = new int[3][3];
+
+        // Revisa filas
+        for (int i = 0; i < 3; i++) {
+            if (meta[i][0] != -1 && meta[i][0] == meta[i][1] && meta[i][1] == meta[i][2]) {
+                return meta[i][0];
+            }
+        }
+
+        // Revisa columnas
+        for (int j = 0; j < 3; j++) {
+            if (meta[0][j] != -1 && meta[0][j] == meta[1][j] && meta[1][j] == meta[2][j]) {
+                return meta[0][j];
+            }
+        }
+
+        // Diagonales
+        if (meta[0][0] != -1 && meta[0][0] == meta[1][1] && meta[1][1] == meta[2][2]) {
+            return meta[0][0];
+        }
+        if (meta[0][2] != -1 && meta[0][2] == meta[1][1] && meta[1][1] == meta[2][0]) {
+            return meta[0][2];
+        }
+
+        return -1; // Nadie ha ganado todavía
     }
     public boolean marcar(int posicion, char simbolo){
         return tablero.marcarCasilla(posicion,simbolo);
@@ -112,6 +136,8 @@ class TableroIndividual implements ComponenteTablero{
         }
         return false;
     }
+
+
 
 
 
@@ -152,26 +178,28 @@ class GrupoTableros implements ComponenteTablero{
     public int revisarGanador() {
         int[][] meta = new int[3][3];
 
+        // Llenar meta con los ganadores de los tableros individuales
         for (int i = 0; i < 9; i++) {
-            int resultado = listaTablero.get(i).revisarGanador();
-            meta[i / 3][i % 3] = resultado;
+            TableroIndividual t = (TableroIndividual) listaTablero.get(i);
+            int ganador = t.getTablero().tableroGanado();
+            meta[i / 3][i % 3] = ganador;
         }
 
-        // Revisa filas
+        // Revisar filas
         for (int i = 0; i < 3; i++) {
             if (meta[i][0] != -1 && meta[i][0] == meta[i][1] && meta[i][1] == meta[i][2]) {
                 return meta[i][0];
             }
         }
 
-        // Revisa columnas
+        // Revisar columnas
         for (int j = 0; j < 3; j++) {
             if (meta[0][j] != -1 && meta[0][j] == meta[1][j] && meta[1][j] == meta[2][j]) {
                 return meta[0][j];
             }
         }
 
-        // Diagonales
+        // Revisar diagonales
         if (meta[0][0] != -1 && meta[0][0] == meta[1][1] && meta[1][1] == meta[2][2]) {
             return meta[0][0];
         }
@@ -179,7 +207,47 @@ class GrupoTableros implements ComponenteTablero{
             return meta[0][2];
         }
 
+        return -1; // No hay ganador
+    }
+
+    private int verificarMatriz(int[][] meta) {
+        for (int i = 0; i < 3; i++) {
+            if (meta[i][0] != -1 && meta[i][0] == meta[i][1] && meta[i][1] == meta[i][2]) return meta[i][0];
+            if (meta[0][i] != -1 && meta[0][i] == meta[1][i] && meta[1][i] == meta[2][i]) return meta[0][i];
+        }
+
+        if (meta[0][0] != -1 && meta[0][0] == meta[1][1] && meta[1][1] == meta[2][2]) return meta[0][0];
+        if (meta[0][2] != -1 && meta[0][2] == meta[1][1] && meta[1][1] == meta[2][0]) return meta[0][2];
+
         return -1; // Nadie ha ganado todavía
+    }
+    public static char verificarGanador(char[][] plano) {
+        // Revisar filas
+        for (int i = 0; i < 3; i++) {
+            if (plano[i][0] != '-' && plano[i][0] == plano[i][1] && plano[i][1] == plano[i][2]) {
+                return plano[i][0];
+            }
+        }
+
+        // Revisar columnas
+        for (int j = 0; j < 3; j++) {
+            if (plano[0][j] != '-' && plano[0][j] == plano[1][j] && plano[1][j] == plano[2][j]) {
+                return plano[0][j];
+            }
+        }
+
+        // Revisar diagonal principal
+        if (plano[0][0] != '-' && plano[0][0] == plano[1][1] && plano[1][1] == plano[2][2]) {
+            return plano[0][0];
+        }
+
+        // Revisar diagonal secundaria
+        if (plano[0][2] != '-' && plano[0][2] == plano[1][1] && plano[1][1] == plano[2][0]) {
+            return plano[0][2];
+        }
+
+        // Si no hay ganador
+        return '-';
     }
 
 }
