@@ -1,16 +1,14 @@
 import java.io.Serializable;
+import java.util.Random;
 
-public class JugadorHumano implements Jugador, Serializable {
-    private String nombre;
+class CPUFacil implements Jugador, Serializable {
+    private String nombre = "CPU";
     private char simbolo;
-
+    Random random = new Random();
     private int ganadas, perdidas, empatadas;
-    public JugadorHumano(String nombre, char simbolo){
-        this.nombre = nombre;
+    public CPUFacil(char simbolo){
         this.simbolo = simbolo;
-
     }
-
     @Override
     public String getNombre() {
         return nombre;
@@ -23,13 +21,25 @@ public class JugadorHumano implements Jugador, Serializable {
 
     @Override
     public int hacerJugada(char[][] tablero) {
-        return 1;
+        int pos;
+        do {
+            pos = random.nextInt(9)+1 ;
+        }while (!esValida(pos,tablero));
+        {;
+            System.out.println("CPU (fácil) elige POSICIÓN: " + pos);
+            return pos;
 
+        }
+    }
+    private boolean esValida(int pos, char[][] tablero) {
+        int i = (pos - 1) / 3;
+        int j = (pos - 1) % 3;
+        return tablero[i][j] == '-';
     }
 
     @Override
     public String toString() {
-        return "JugadorHumano{" +
+        return "cpu-easy{" +
                 "nombre='" + nombre + '\'' +
                 ", simbolo=" + simbolo +
                 ", ganadas=" + ganadas +

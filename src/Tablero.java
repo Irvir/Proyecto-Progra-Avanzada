@@ -24,7 +24,7 @@ class Tablero implements Observer {
             }
         }
     }
-
+    //Marca casilla si es que no está marca saca un true, caso contrario saca un falso
     boolean marcarCasilla(int posicion, char simbolo) {
         int i = (posicion - 1) / 3;
         int j = (posicion - 1) % 3;
@@ -43,7 +43,13 @@ class Tablero implements Observer {
     public char[][] getTablero() {
         return tablero;
     }
-
+    /*
+    Retorna
+    1: Jugador 1 Gana
+    2: Jugador 2 Gana
+    0: Empate
+    -1: Ninguno de los 2 ganó
+     */
     public int tableroGanado() {
         //Filas
         for (int i = 0; i < 3; i++) {
@@ -59,181 +65,40 @@ class Tablero implements Observer {
             }
         }
 
-        // Revisar diagonal principal
+        // Diagonal principal
         if (tablero[0][0] != '-' && tablero[0][0] == tablero[1][1] && tablero[1][1] == tablero[2][2]) {
             return tablero[0][0] == 'x' ? 1 : 2;
         }
-        // Revisar diagonal secundaria
+
+        // Diagonal secundaria
         if (tablero[0][2] != '-' && tablero[0][2] == tablero[1][1] && tablero[1][1] == tablero[2][0]) {
             return tablero[0][2] == 'x' ? 1 : 2;
         }
 
-        // Si no hay ganador
-        return -1;
+        // Verificar si el tablero está lleno (empate)
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (tablero[i][j] == '-') {
+                    return -1; // Aún quedan espacios, sigue el juego
+                }
+            }
+        }
+
+        return 0; // Tablero lleno, empate
     }
+    void rellenar(char signo){
+        for (int i= 0; i< 3; i++){;
+            for (int j= 0;j<3 ; j++){
+                tablero[i][j] = signo;
+            };
+        }
+    }
+
 
     @Override
     public void actualizar() {
         System.out.println("Tablero actualizado");
         imprimirTablero();
-    }
-}
-class TableroIndividual implements ComponenteTablero{
-    Tablero tablero;
-    public TableroIndividual(){
-        tablero = new Tablero();
-        tablero.crearTablero();
-    }
-
-
-    @Override
-    public void imprimir() {
-        tablero.imprimirTablero();
-    }
-
-    @Override
-    public int revisarGanador() {
-        int[][] meta = new int[3][3];
-
-        // Revisa filas
-        for (int i = 0; i < 3; i++) {
-            if (meta[i][0] != -1 && meta[i][0] == meta[i][1] && meta[i][1] == meta[i][2]) {
-                return meta[i][0];
-            }
-        }
-
-        // Revisa columnas
-        for (int j = 0; j < 3; j++) {
-            if (meta[0][j] != -1 && meta[0][j] == meta[1][j] && meta[1][j] == meta[2][j]) {
-                return meta[0][j];
-            }
-        }
-
-        // Diagonales
-        if (meta[0][0] != -1 && meta[0][0] == meta[1][1] && meta[1][1] == meta[2][2]) {
-            return meta[0][0];
-        }
-        if (meta[0][2] != -1 && meta[0][2] == meta[1][1] && meta[1][1] == meta[2][0]) {
-            return meta[0][2];
-        }
-
-        return -1; // Nadie ha ganado todavía
-    }
-    public boolean marcar(int posicion, char simbolo){
-        return tablero.marcarCasilla(posicion,simbolo);
-    }
-
-    public Tablero getTablero() {
-        return tablero;
-    }
-
-    @Override
-    public boolean marcarCasilla(int x, int posicion, char simbolo) {
-        int i = (posicion - 1) / 3;
-        int j = (posicion - 1) % 3;
-        if (tablero.getTablero()[i][j] == '-') {
-            tablero.getTablero()[i][j] = simbolo;
-
-            return true;
-        }
-        return false;
-    }
-
-
-
-
-
-}
-class GrupoTableros implements ComponenteTablero{
-    private ArrayList<ComponenteTablero> listaTablero = new ArrayList<>();
-    public GrupoTableros(){
-        for (int i=0;i<9;i++){
-            listaTablero.add(new TableroIndividual());
-        }
-    }
-    public ComponenteTablero getTablero(int index){
-        return listaTablero.get(index);
-    }
-
-    @Override
-    public void imprimir() {
-        for (int i = 0; i < 9; i++) {
-            System.out.println("Tablero " + i + ":");
-            listaTablero.get(i).imprimir();
-            System.out.println();
-        }
-    }
-    @Override
-    public boolean marcarCasilla(int x,int posicion, char simbolo) {
-        int i = (posicion - 1) / 3;
-        int j = (posicion - 1) % 3;
-        TableroIndividual t = (TableroIndividual) listaTablero.get(x);
-
-        if (t.getTablero().getCasilla(i,j ) == '-') {
-            t.getTablero().setCasilla(i, j, simbolo);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public int revisarGanador() {
-        int[][] meta = new int[3][3];
-
-        // Inicializar meta con -1
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                meta[i][j] = -1;
-            }
-        }
-
-        // Guardar los resultados de los tableros individuales
-        for (int i = 0; i < 9; i++) {
-            TableroIndividual t = (TableroIndividual) listaTablero.get(i);
-            meta[i / 3][i % 3] = t.getTablero().tableroGanado();
-        }
-
-        // Verificar filas, columnas y diagonales
-        return verificarMatriz(meta);
-    }
-    private int verificarMatriz(int[][] meta) {
-        for (int i = 0; i < 3; i++) {
-            if (meta[i][0] != -1 && meta[i][0] == meta[i][1] && meta[i][1] == meta[i][2]) return meta[i][0];
-            if (meta[0][i] != -1 && meta[0][i] == meta[1][i] && meta[1][i] == meta[2][i]) return meta[0][i];
-        }
-
-        if (meta[0][0] != -1 && meta[0][0] == meta[1][1] && meta[1][1] == meta[2][2]) return meta[0][0];
-        if (meta[0][2] != -1 && meta[0][2] == meta[1][1] && meta[1][1] == meta[2][0]) return meta[0][2];
-
-        return -1; // Nadie ha ganado todavía
-    }
-    public static char verificarGanador(char[][] plano) {
-        // Revisar filas
-        for (int i = 0; i < 3; i++) {
-            if (plano[i][0] != '-' && plano[i][0] == plano[i][1] && plano[i][1] == plano[i][2]) {
-                return plano[i][0];
-            }
-        }
-
-        // Revisar columnas
-        for (int j = 0; j < 3; j++) {
-            if (plano[0][j] != '-' && plano[0][j] == plano[1][j] && plano[1][j] == plano[2][j]) {
-                return plano[0][j];
-            }
-        }
-
-        // Revisar diagonal principal
-        if (plano[0][0] != '-' && plano[0][0] == plano[1][1] && plano[1][1] == plano[2][2]) {
-            return plano[0][0];
-        }
-
-        // Revisar diagonal secundaria
-        if (plano[0][2] != '-' && plano[0][2] == plano[1][1] && plano[1][1] == plano[2][0]) {
-            return plano[0][2];
-        }
-
-        // Si no hay ganador
-        return '-';
     }
 
 }

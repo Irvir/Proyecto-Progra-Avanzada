@@ -9,7 +9,7 @@ public class Serializacion {
         jugadores.add(jugador); // O puedes actualizar si ya existe
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("jugadores.txt"))) {
             out.writeObject(jugadores);
-            System.out.println("✔ Jugador serializado correctamente.");
+            System.out.println("- Jugador serializado correctamente.");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -29,12 +29,4 @@ public class Serializacion {
 }
 
 
-class Deserializacion {
-    public static void main(String[] args) {
-        ArrayList<Jugador> jugadores = Serializacion.cargarJugadores();
-        for (Jugador j : jugadores) {
-            System.out.println(j.toString());
-        }
-    }
-}
 
