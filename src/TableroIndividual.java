@@ -19,33 +19,36 @@ public class TableroIndividual implements ComponenteTablero{
         }
     }
     @Override
-    public int revisarGanador() {
-        int[][] meta = new int[3][3];
 
-        // Revisa filas
+    public int revisarGanador() {
+        char[][] casillas = tablero.getTablero();
+
+        // Filas
         for (int i = 0; i < 3; i++) {
-            if (meta[i][0] != -1 && meta[i][0] == meta[i][1] && meta[i][1] == meta[i][2]) {
-                return meta[i][0];
+            if (casillas[i][0] != '-' && casillas[i][0] == casillas[i][1] && casillas[i][1] == casillas[i][2]) {
+                return casillas[i][0]; // Devuelve 'x' o 'o'
             }
         }
 
-        // Revisa columnas
+        // Columnas
         for (int j = 0; j < 3; j++) {
-            if (meta[0][j] != -1 && meta[0][j] == meta[1][j] && meta[1][j] == meta[2][j]) {
-                return meta[0][j];
+            if (casillas[0][j] != '-' && casillas[0][j] == casillas[1][j] && casillas[1][j] == casillas[2][j]) {
+                return casillas[0][j];
             }
         }
 
         // Diagonales
-        if (meta[0][0] != -1 && meta[0][0] == meta[1][1] && meta[1][1] == meta[2][2]) {
-            return meta[0][0];
-        }
-        if (meta[0][2] != -1 && meta[0][2] == meta[1][1] && meta[1][1] == meta[2][0]) {
-            return meta[0][2];
+        if (casillas[0][0] != '-' && casillas[0][0] == casillas[1][1] && casillas[1][1] == casillas[2][2]) {
+            return casillas[0][0];
         }
 
-        return -1; // Nadie ha ganado todavía
+        if (casillas[0][2] != '-' && casillas[0][2] == casillas[1][1] && casillas[1][1] == casillas[2][0]) {
+            return casillas[0][2];
+        }
+
+        return '-'; // Nadie ha ganado todavía
     }
+
     public boolean marcar(int posicion, char simbolo){
         return tablero.marcarCasilla(posicion,simbolo);
     }
@@ -65,6 +68,18 @@ public class TableroIndividual implements ComponenteTablero{
         }
         return false;
     }
+    public boolean estaCompleto() {
+        char[][] casillas = tablero.getTablero();
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (casillas[i][j] == '-') {
+                    return false; // Todavía hay casillas libres
+                }
+            }
+        }
+        return true; // Está lleno
+    }
+
 
 
 
