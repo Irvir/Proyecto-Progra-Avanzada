@@ -19,25 +19,21 @@ public class TableroIndividual implements ComponenteTablero{
         }
     }
     @Override
-
+    //Devuelve x o o, si nadie ha ganado '-'
     public int revisarGanador() {
         char[][] casillas = tablero.getTablero();
-
-        // Filas
         for (int i = 0; i < 3; i++) {
             if (casillas[i][0] != '-' && casillas[i][0] == casillas[i][1] && casillas[i][1] == casillas[i][2]) {
-                return casillas[i][0]; // Devuelve 'x' o 'o'
+                return casillas[i][0];
             }
         }
 
-        // Columnas
         for (int j = 0; j < 3; j++) {
             if (casillas[0][j] != '-' && casillas[0][j] == casillas[1][j] && casillas[1][j] == casillas[2][j]) {
                 return casillas[0][j];
             }
         }
 
-        // Diagonales
         if (casillas[0][0] != '-' && casillas[0][0] == casillas[1][1] && casillas[1][1] == casillas[2][2]) {
             return casillas[0][0];
         }
@@ -46,12 +42,9 @@ public class TableroIndividual implements ComponenteTablero{
             return casillas[0][2];
         }
 
-        return '-'; // Nadie ha ganado todavía
+        return '-';
     }
 
-    public boolean marcar(int posicion, char simbolo){
-        return tablero.marcarCasilla(posicion,simbolo);
-    }
 
     public Tablero getTablero() {
         return tablero;
@@ -68,16 +61,17 @@ public class TableroIndividual implements ComponenteTablero{
         }
         return false;
     }
+    //false si no hay casillas libres, true si está lleno
     public boolean estaCompleto() {
         char[][] casillas = tablero.getTablero();
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 if (casillas[i][j] == '-') {
-                    return false; // Todavía hay casillas libres
+                    return false;
                 }
             }
         }
-        return true; // Está lleno
+        return true;
     }
 
 

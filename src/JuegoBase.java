@@ -3,37 +3,19 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
-// Implementa la interfaz Sujeto ya que esté va a avisar cuando gane
 public class JuegoBase implements Sujeto {
-    //Instancia de MetaTablero (El que define si se gana o se pierde)
     private Tablero metaTablero;
-    // Instancia de la ClaseTableros que después uso para agregar Tableros Individuales
     private GrupoTableros grupoTableros;
-    // Instancia de Jugador 1
     private Jugador jugador1;
-    // Instancia de Jugador 2
     private Jugador jugador2;
-    // Inputs del usuario
     private Scanner input = new Scanner(System.in);
-    private Scanner input2 = new Scanner(System.in);
-
-    //Simbolo con que el marca el que primero Comienza
     private char simboloGanador;
-    //Simbolo con que el marca el segundo
     private char simboloPerdedor;
-    //Instancia de tableroIndividual
     private Tablero tablero;
-    //Lista para agregarTableros
-    private ArrayList<Integer> listTablero = new ArrayList<>();
-    //Nombre del Jugador 1
     private String nombreJ1;
-    //Tipo del Jugador 1 -> Humano-CPU-easy-CPU-Hard
     private String tipoJ1;
-    //Nombre del Jugador 2
     private String nombreJ2;
-    //Tipo del Jugador 2 -> Humano-CPU-easy-CPU-Hard
     private String tipoJ2;
-    //Arraylist del Patron del diseño Observer
     private ArrayList<Observer> observers = new ArrayList<>();
 
     /**
@@ -78,7 +60,7 @@ public class JuegoBase implements Sujeto {
     @Override
     public void notificarObserver() {
         for (Observer o : observers) {
-            o.actualizar();
+            o.actualizar(jugador1, jugador2);
         }
     }
 
@@ -87,49 +69,35 @@ public class JuegoBase implements Sujeto {
      * @param nombreJ2 Nombre Jugador 2
      */
     void comenzarJuego(String nombreJ1, String nombreJ2) {
-        //Crea instancia de metaTablero
         metaTablero = new Tablero();
         metaTablero.crearTablero();
-        //Crea random que es para los dados para decidir quien va a ganar
         Random random = new Random();
-        //Dado 1 va desde el 1 - 6
         int dado1 = random.nextInt(6) + 1;
-        //Dado 2 va desde el 1 - 6
         int dado2 = random.nextInt(6) + 1;
-        //El resultadoDado1 es la suma de los dados 1 y 2
         int resultadoDado1 = dado1 + dado2;
         System.out.println("Lanzando los dados... RESULTADO JUGADOR 1: " + resultadoDado1);
 
-        //Dado 1 va desde el 1 - 6
         dado1 = random.nextInt(6) + 1;
-        //Dado 2 va desde el 1 - 6
         dado2 = random.nextInt(6) + 1;
-        //El resultadoDado2 es la suma de los dados 1 y 2
         int resultadoDado2 = dado1 + dado2;
         System.out.println("Lanzando los dados... RESULTADO JUGADOR 2: " + resultadoDado2);
-        //-----------LO CAMBIE PARA LOS TEST------------------------------------------------------
-        resultadoDado2 = 30;
 
-        //Si el resultadoDado1 es mayor a resultadoDado2 gana el Jugador1
+
         if (resultadoDado1 > resultadoDado2) {
             System.out.println("GANÓ JUGADOR 1");
             System.out.println("¿Qué símbolo ('x' ó 'o') desea el Jugador 1?");
-            //Escoje el simbolo Ganador
             if (input.hasNextLine()) {
                 simboloGanador = input.nextLine().charAt(0);
             } else {
                 System.out.println("No hay entrada disponible.");
             }
-            //Se escoje el simbolo opuesto
             simboloPerdedor = (simboloGanador == 'x') ? 'o' : 'x';
 
         }
-        //Si gana el DadoResultado2 (Jugador 2)
         else {
             System.out.println("GANÓ JUGADOR 2");
             if (tipoJ2.equals("humano")) {
                 System.out.println("¿Qué símbolo ('x' ó 'o') desea el Jugador 2?");
-                //Escoje el Jugador2 el simboloGanador
                 if (input.hasNextLine()) {
                     simboloGanador = input.nextLine().charAt(0);
                 } else {
@@ -140,19 +108,29 @@ public class JuegoBase implements Sujeto {
                 }
 
             }
-            //Si Jugador 2 es un CPU
             else {
-                //El signo por defecto de J2 CPU es 'o'
                 System.out.println("Como J2 es: CPU, su signo es 'o'");
                 simboloGanador = 'o';
                 simboloPerdedor = 'x';
             }
         }
 
-        //Llama a Jugador 1 y Jugador 2, para crearlos con JugadorFactory
         jugador1 = JugadorFactory.crearJugador(tipoJ1, nombreJ1, simboloGanador);
         jugador2 = JugadorFactory.crearJugador(tipoJ2, nombreJ2, simboloPerdedor);
-        //Crea un nuevo Tablero
+
+        ArrayList<Jugador> jugadores = Serializacion.cargarJugadores();
+
+        jugadores.add(jugador1);
+        jugadores.add(jugador2);
+
+        System.out.println("Ranking de Jugadores (de mayor a menor ganadas):");
+        for (Jugador jugador : jugadores) {
+            if (jugador instanceof JugadorHumano) {
+                JugadorHumano jHumano = (JugadorHumano) jugador;
+                System.out.println("Jugador: " + jHumano.getNombre() + " - Ganadas: " + jHumano.getGanadas());
+            }
+        }
+
         tablero = new Tablero();
         tablero.crearTablero();
 
@@ -161,13 +139,9 @@ public class JuegoBase implements Sujeto {
         int y;
         System.out.println("FORMATO DE ENTRADA: x (plano) (espacio) y(cuadrante)");
         int aux = 0;
-        //Guarda los estados de los jugadores
         Serializacion.guardarJugador(jugador1);
         Serializacion.guardarJugador(jugador2);
-        //Los carga
-        ArrayList<Jugador> jugadores = Serializacion.cargarJugadores();
 
-        //Si Jugador1 > Jugador 2
         x = 0;
         y = 0;
         int turno = 0;
@@ -175,15 +149,15 @@ public class JuegoBase implements Sujeto {
 
         System.out.println(jugador2.getNombre());
 
+
         if (resultadoDado1 > resultadoDado2) {
-            //Si jugador es humano
             if (tipoJ2.equals("humano")) {
                 while (aux != -1) {
                     // TURNO JUGADOR 1
                     System.out.println("Turno de " + jugador1.getNombre());
                     int tableroDestino;
                     if (turno < 1) {
-                        tableroDestino = y;  // El tablero en el que debe jugar por defecto
+                        tableroDestino = y;
                     } else {
                         tableroDestino = yElegida;
                     }
@@ -202,16 +176,19 @@ public class JuegoBase implements Sujeto {
                     String entrada = input.nextLine();
                     if (entrada.equalsIgnoreCase("rendirse")) {
                         if (jugador2 instanceof JugadorHumano) {
-                            ((JugadorHumano) jugador2).incrementarGanadas();
-                            Serializacion.guardarJugador(jugador2);
+
+                            tablero.actualizar(jugador2,jugador1);
+
                             jugadores = Serializacion.cargarJugadores();
                             for (Jugador j : jugadores) {
                                 System.out.println(j);
                             }
+
                             TableroIndividual tableroInd = (TableroIndividual) grupoTableros.getTablero(tableroDestino);
                             tableroInd.rellenar(simboloPerdedor);
                             char[][] plano = tableroInd.getTablero().getTablero();
                             char v = GrupoTableros.verificarGanador(plano);
+
                             System.out.println("¡Jugador " + jugador2.getNombre() + " ha ganado el tablero " + tableroDestino + "!");
                         }
                         System.out.println("¡Jugador 1 se ha rendido! Turno para Jugador 2.");
@@ -239,13 +216,12 @@ public class JuegoBase implements Sujeto {
                     TableroIndividual tableroInd = (TableroIndividual) grupoTableros.getTablero(x);
                     char[][] plano = tableroInd.getTablero().getTablero();
                     char v = GrupoTableros.verificarGanador(plano);
-                    listTablero.add(x);
                     System.out.println("Resultado Jugador 1: " + v);
 
                     if (v == 'x' || v == 'o') {
                         if (jugador1 instanceof JugadorHumano) {
-                            ((JugadorHumano) jugador1).incrementarGanadas();
-                            Serializacion.guardarJugador(jugador1);
+                            tablero.actualizar(jugador1, jugador2);
+
                             jugadores = Serializacion.cargarJugadores();
                             for (Jugador j : jugadores) {
                                 System.out.println(j);
@@ -260,9 +236,24 @@ public class JuegoBase implements Sujeto {
                         aux = revisionMetaPlano;
                         break;
                     }
+                    if (tableroInd.estaCompleto() && v == '-') {
+                        System.out.println("El tablero " + x + " ha quedado en empate.");
+                        ((JugadorHumano)jugador1).incrementarEmpatadas();
+                        ((JugadorHumano)jugador2).incrementarEmpatadas();
+                        Serializacion.guardarJugador(jugador1);
+                        Serializacion.guardarJugador(jugador2);
+                        jugadores = Serializacion.cargarJugadores();
+                        for (Jugador j : jugadores) {
+                            System.out.println(j);
+                        }
+
+
+                        tableroInd.rellenar('*');
+                    }
+
 
                     // TURNO JUGADOR 2
-                    tableroDestino = yElegida;
+                    tableroDestino = yElegida-1;
                     y = yElegida;
 
                     tableroDestinoInd = (TableroIndividual) grupoTableros.getTablero(tableroDestino);
@@ -279,8 +270,10 @@ public class JuegoBase implements Sujeto {
                     entrada = input.nextLine();
                     if (entrada.equalsIgnoreCase("rendirse")) {
                         if (jugador1 instanceof JugadorHumano) {
-                            ((JugadorHumano) jugador1).incrementarGanadas();
-                            Serializacion.guardarJugador(jugador1);
+
+                            tablero.actualizar(jugador1, jugador2);
+
+
                             jugadores = Serializacion.cargarJugadores();
                             for (Jugador j : jugadores) {
                                 System.out.println(j);
@@ -316,13 +309,14 @@ public class JuegoBase implements Sujeto {
                     tableroInd = (TableroIndividual) grupoTableros.getTablero(x);
                     plano = tableroInd.getTablero().getTablero();
                     v = GrupoTableros.verificarGanador(plano);
-                    listTablero.add(x);
                     System.out.println("Resultado Jugador 2: " + v);
 
                     if (v == 'x' || v == 'o') {
                         if (jugador2 instanceof JugadorHumano) {
-                            ((JugadorHumano) jugador2).incrementarGanadas();
-                            Serializacion.guardarJugador(jugador2);
+
+                            tablero.actualizar(jugador2,jugador1);
+
+
                             jugadores = Serializacion.cargarJugadores();
                             for (Jugador j : jugadores) {
                                 System.out.println(j);
@@ -337,19 +331,29 @@ public class JuegoBase implements Sujeto {
                         aux = revisionMetaPlano;
                         break;
                     }
+                    if (tableroInd.estaCompleto() && v == '-') {
+                        System.out.println("El tablero " + x + " ha quedado en empate.");
+                        ((JugadorHumano)jugador1).incrementarEmpatadas();
+                        ((JugadorHumano)jugador2).incrementarEmpatadas();
+                        Serializacion.guardarJugador(jugador1);
+                        Serializacion.guardarJugador(jugador2);
+                        jugadores = Serializacion.cargarJugadores();
+                        for (Jugador j : jugadores) {
+                            System.out.println(j);
+                        }
+                        tableroInd.rellenar('*');
+                    }
 
                     System.out.println("Tablero actual:  " + x + " Posición escogida: " + yElegida);
                     turno++;
                 }
             }
-
-            //Si ganó el Jugador1 pero el J2 es CPU easy
             else if (tipoJ2.equals("cpu-easy")) {
                 while (aux != -1) {
                     System.out.println("Turno de " + jugador1.getNombre());
                     int tableroDestino;
                     if (turno < 1) {
-                        tableroDestino = y;  // El tablero en el que debe jugar por defecto
+                        tableroDestino = y;
                     } else {
                         tableroDestino = yElegida;
                     }
@@ -368,8 +372,10 @@ public class JuegoBase implements Sujeto {
                     String entrada = input.nextLine();
                     if (entrada.equalsIgnoreCase("rendirse")) {
                         if (jugador2 instanceof JugadorHumano) {
-                            ((JugadorHumano) jugador2).incrementarGanadas();
-                            Serializacion.guardarJugador(jugador2);
+
+                            tablero.actualizar(jugador2, jugador1);
+
+
                             jugadores = Serializacion.cargarJugadores();
                             for (Jugador j : jugadores) {
                                 System.out.println(j);
@@ -405,13 +411,12 @@ public class JuegoBase implements Sujeto {
                     TableroIndividual tableroInd = (TableroIndividual) grupoTableros.getTablero(x);
                     char[][] plano = tableroInd.getTablero().getTablero();
                     char v = GrupoTableros.verificarGanador(plano);
-                    listTablero.add(x);
                     System.out.println("Resultado Jugador 1: " + v);
 
                     if (v == 'x' || v == 'o') {
                         if (jugador1 instanceof JugadorHumano) {
-                            ((JugadorHumano) jugador1).incrementarGanadas();
-                            Serializacion.guardarJugador(jugador1);
+                            tablero.actualizar(jugador1, jugador2);
+
                             jugadores = Serializacion.cargarJugadores();
                             for (Jugador j : jugadores) {
                                 System.out.println(j);
@@ -426,6 +431,19 @@ public class JuegoBase implements Sujeto {
                         aux = revisionMetaPlano;
                         break;
                     }
+                    if (tableroInd.estaCompleto() && v == '-') {
+                        System.out.println("El tablero " + x + " ha quedado en empate.");
+                        ((JugadorHumano)jugador1).incrementarEmpatadas();
+                        ((CPUFacil)jugador2).incrementarEmpatadas();
+                        Serializacion.guardarJugador(jugador1);
+                        Serializacion.guardarJugador(jugador2);
+                        jugadores = Serializacion.cargarJugadores();
+                        for (Jugador j : jugadores) {
+                            System.out.println(j);
+                        }
+                        tableroInd.rellenar('*');
+                    }
+
                     // Turno CPU
 
                     tableroInd = (TableroIndividual) grupoTableros.getTablero(x);
@@ -450,12 +468,12 @@ public class JuegoBase implements Sujeto {
                     v = GrupoTableros.verificarGanador(plano);
                     System.out.println("Resultado: " + v);
 
-                    listTablero.add(x);
 
                     if (v == 'x' || v == 'o') {
                         if (jugador2 instanceof CPUFacil) {
-                            ((CPUFacil) jugador2).incrementarGanadas();
-                            Serializacion.guardarJugador(jugador2);
+                            tablero.actualizar(jugador2,jugador1);
+
+
                             jugadores = Serializacion.cargarJugadores();
                             for (Jugador j : jugadores) {
                                 System.out.println(j);
@@ -470,6 +488,19 @@ public class JuegoBase implements Sujeto {
                         aux = revisionMetaPlano;
                         break;
                     }
+                    if (tableroInd.estaCompleto() && v == '-') {
+                        System.out.println("El tablero " + x + " ha quedado en empate.");
+                        ((JugadorHumano)jugador1).incrementarEmpatadas();
+                        ((CPUDificil)jugador2).incrementarEmpatadas();
+                        Serializacion.guardarJugador(jugador1);
+                        Serializacion.guardarJugador(jugador2);
+                        jugadores = Serializacion.cargarJugadores();
+                        for (Jugador j : jugadores) {
+                            System.out.println(j);
+                        }
+                        tableroInd.rellenar('*');
+                    }
+
                     turno++;
 
                 }
@@ -477,12 +508,11 @@ public class JuegoBase implements Sujeto {
             }
             //Si el Jugador1 Gana, pero es CPU - Hard
             else if (tipoJ2.equals("cpu-hard")) {
-                System.out.println("entreaqui");
                 while (aux != -1) {
                     System.out.println("Turno de " + jugador1.getNombre());
                     int tableroDestino;
                     if (turno < 1) {
-                        tableroDestino = yElegida;  // El tablero en el que debe jugar por defecto
+                        tableroDestino = yElegida;
                     } else {
                         tableroDestino = y;
                     }
@@ -501,8 +531,8 @@ public class JuegoBase implements Sujeto {
                     String entrada = input.nextLine();
                     if (entrada.equalsIgnoreCase("rendirse")) {
                         if (jugador2 instanceof JugadorHumano) {
-                            ((JugadorHumano) jugador2).incrementarGanadas();
-                            Serializacion.guardarJugador(jugador2);
+                            tablero.actualizar(jugador2,jugador1);
+
                             jugadores = Serializacion.cargarJugadores();
                             for (Jugador j : jugadores) {
                                 System.out.println(j);
@@ -538,13 +568,12 @@ public class JuegoBase implements Sujeto {
                     TableroIndividual tableroInd = (TableroIndividual) grupoTableros.getTablero(x);
                     char[][] plano = tableroInd.getTablero().getTablero();
                     char v = GrupoTableros.verificarGanador(plano);
-                    listTablero.add(x);
                     System.out.println("Resultado Jugador 1: " + v);
 
                     if (v == 'x' || v == 'o') {
                         if (jugador1 instanceof JugadorHumano) {
-                            ((JugadorHumano) jugador1).incrementarGanadas();
-                            Serializacion.guardarJugador(jugador1);
+                            tablero.actualizar(jugador1,jugador2);
+
                             jugadores = Serializacion.cargarJugadores();
                             for (Jugador j : jugadores) {
                                 System.out.println(j);
@@ -559,8 +588,21 @@ public class JuegoBase implements Sujeto {
                         aux = revisionMetaPlano;
                         break;
                     }
+                    if (tableroInd.estaCompleto() && v == '-') {
+                        System.out.println("El tablero " + x + " ha quedado en empate.");
+                        ((JugadorHumano)jugador1).incrementarEmpatadas();
+                        ((CPUDificil)jugador2).incrementarEmpatadas();
+                        Serializacion.guardarJugador(jugador1);
+                        Serializacion.guardarJugador(jugador2);
+                        jugadores = Serializacion.cargarJugadores();
+                        for (Jugador j : jugadores) {
+                            System.out.println(j);
+                        }
+                        tableroInd.rellenar('*');
+                    }
 
-//-------------------------------------------------------------------------------------------------------------
+
+                    //TURNO CPU
                     tableroInd = (TableroIndividual) grupoTableros.getTablero(x);
                     char[][] tableroCPU = tableroInd.getTablero().getTablero();
                     y = jugador2.hacerJugada(tableroCPU);
@@ -583,12 +625,11 @@ public class JuegoBase implements Sujeto {
                     v = GrupoTableros.verificarGanador(plano);
                     System.out.println("Resultado: " + v);
 
-                    listTablero.add(x);
 
                     if (v == 'x' || v == 'o') {
                         if (jugador2 instanceof CPUFacil) {
-                            ((CPUFacil) jugador2).incrementarGanadas();
-                            Serializacion.guardarJugador(jugador2);
+                            tablero.actualizar(jugador2,jugador1);
+
                             jugadores = Serializacion.cargarJugadores();
                             for (Jugador j : jugadores) {
                                 System.out.println(j);
@@ -603,6 +644,19 @@ public class JuegoBase implements Sujeto {
                         aux = revisionMetaPlano;
                         break;
                     }
+                    if (tableroInd.estaCompleto() && v == '-') {
+                        System.out.println("El tablero " + x + " ha quedado en empate.");
+                        ((JugadorHumano)jugador1).incrementarEmpatadas();
+                        ((CPUDificil)jugador2).incrementarEmpatadas();
+                        Serializacion.guardarJugador(jugador1);
+                        Serializacion.guardarJugador(jugador2);
+                        jugadores = Serializacion.cargarJugadores();
+                        for (Jugador j : jugadores) {
+                            System.out.println(j);
+                        }
+                        tableroInd.rellenar('*');
+                    }
+
                     turno++;
 
                 }
@@ -612,21 +666,19 @@ public class JuegoBase implements Sujeto {
 
         else {
 
-            //Jugador 1 pierde pero es HUMANO
             if (tipoJ2.equals("humano") ){
                 while (aux != -1) {
                     // TURNO JUGADOR 2
                     System.out.println("Turno de " + jugador2.getNombre());
                     int tableroDestino;
                     if (turno<1){
-                        tableroDestino = y;  // El tablero en el que debe jugar por defecto
+                        tableroDestino = y;
 
                     }else {
                         tableroDestino = yElegida;
                     }
                     TableroIndividual tableroDestinoInd = (TableroIndividual) grupoTableros.getTablero(tableroDestino);
 
-                    // Comprobamos si se permite ELEGIR tablero (solo en condiciones específicas)
                     boolean puedeElegirTablero = (turno < 1) ||
                             tableroDestinoInd.estaCompleto() ||
                             (GrupoTableros.verificarGanador(tableroDestinoInd.getTablero().getTablero()) != '-');
@@ -640,8 +692,8 @@ public class JuegoBase implements Sujeto {
                     String entrada = input.nextLine();
                     if (entrada.equalsIgnoreCase("rendirse")) {
                         if (jugador1 instanceof JugadorHumano) {
-                            ((JugadorHumano) jugador1).incrementarGanadas();
-                            Serializacion.guardarJugador(jugador1);
+                            tablero.actualizar(jugador1,jugador2);
+
                             jugadores = Serializacion.cargarJugadores();
                             for (Jugador j : jugadores) {
                                 System.out.println(j);
@@ -678,13 +730,12 @@ public class JuegoBase implements Sujeto {
                     TableroIndividual tableroInd = (TableroIndividual) grupoTableros.getTablero(x);
                     char[][] plano = tableroInd.getTablero().getTablero();
                     char v = GrupoTableros.verificarGanador(plano);
-                    listTablero.add(x);
                     System.out.println("Resultado Jugador 2: " + v);
 
                     if (v == 'x' || v == 'o') {
                         if (jugador2 instanceof JugadorHumano) {
-                            ((JugadorHumano) jugador2).incrementarGanadas();
-                            Serializacion.guardarJugador(jugador2);
+                            tablero.actualizar(jugador2, jugador1);
+
                             jugadores = Serializacion.cargarJugadores();
                             for (Jugador j : jugadores) {
                                 System.out.println(j);
@@ -699,9 +750,22 @@ public class JuegoBase implements Sujeto {
                         aux = revisionMetaPlano;
                         break;
                     }
+                    if (tableroInd.estaCompleto() && v == '-') {
+                        System.out.println("El tablero " + x + " ha quedado en empate.");
+                        ((JugadorHumano)jugador1).incrementarEmpatadas();
+                        ((JugadorHumano)jugador2).incrementarEmpatadas();
+                        Serializacion.guardarJugador(jugador1);
+                        Serializacion.guardarJugador(jugador2);
+                        jugadores = Serializacion.cargarJugadores();
+                        for (Jugador j : jugadores) {
+                            System.out.println(j);
+                        }
+                        tableroInd.rellenar('*');
+                    }
+
 
                     // TURNO JUGADOR 1
-                    tableroDestino = yElegida;
+                    tableroDestino = yElegida - 1;
                     y = yElegida;
 
                     tableroDestinoInd = (TableroIndividual) grupoTableros.getTablero(tableroDestino);
@@ -719,8 +783,7 @@ public class JuegoBase implements Sujeto {
                     if (entrada.equalsIgnoreCase("rendirse")) {
 
                         if (jugador2 instanceof JugadorHumano) {
-                            ((JugadorHumano) jugador2).incrementarGanadas();
-                            Serializacion.guardarJugador(jugador2);
+                            tablero.actualizar(jugador2,jugador1);
                             jugadores = Serializacion.cargarJugadores();
                             for (Jugador j : jugadores) {
                                 System.out.println(j);
@@ -756,13 +819,12 @@ public class JuegoBase implements Sujeto {
                     tableroInd = (TableroIndividual) grupoTableros.getTablero(x);
                     plano = tableroInd.getTablero().getTablero();
                     v = GrupoTableros.verificarGanador(plano);
-                    listTablero.add(x);
                     System.out.println("Resultado Jugador 1: " + v);
 
                     if (v == 'x' || v == 'o') {
                         if (jugador1 instanceof JugadorHumano) {
-                            ((JugadorHumano) jugador1).incrementarGanadas();
-                            Serializacion.guardarJugador(jugador1);
+                            tablero.actualizar(jugador1,jugador2);
+
                             jugadores = Serializacion.cargarJugadores();
                             for (Jugador j : jugadores) {
                                 System.out.println(j);
@@ -780,34 +842,51 @@ public class JuegoBase implements Sujeto {
 
                     System.out.println("Tablero actual:  " + x + " Posicion escogida: "+ yElegida);
                     turno++;
+                    if (tableroInd.estaCompleto() && v == '-') {
+                        System.out.println("El tablero " + x + " ha quedado en empate.");
+                        ((JugadorHumano)jugador1).incrementarEmpatadas();
+                        ((JugadorHumano)jugador2).incrementarEmpatadas();
+                        Serializacion.guardarJugador(jugador1);
+                        Serializacion.guardarJugador(jugador2);
+                        jugadores = Serializacion.cargarJugadores();
+                        for (Jugador j : jugadores) {
+                            System.out.println(j);
+                        }
+                        tableroInd.rellenar('*');
+                    }
+
                 }
 
+
             }
-            // Jugador 1 pierde, pero es cpu -easy
             else if (tipoJ2.equals("cpu-easy")) {
                 while (aux != -1) {
                     // TURNO CPU PRIMERO
                     System.out.println("Turno de " + jugador2.getNombre());
                     int tableroDestinoCPU;
                     if (turno < 1) {
-                        tableroDestinoCPU = y;
+                        tableroDestinoCPU = 9;
+
                     } else {
                         tableroDestinoCPU = yElegida;
                     }
 
-                    TableroIndividual tableroDestinoInd = (TableroIndividual) grupoTableros.getTablero(tableroDestinoCPU);
+                    TableroIndividual tableroDestinoInd = (TableroIndividual) grupoTableros.getTablero(tableroDestinoCPU-1);
                     char[][] tableroCPU = tableroDestinoInd.getTablero().getTablero();
                     y = jugador2.hacerJugada(tableroCPU);
                     x = tableroDestinoCPU;
-
+                    if (x ==9){
+                        x-=1;
+                    }
                     System.out.println("Plano x: " + x + " Posición: " + y + " Posición elegida: " + yElegida);
                     try {
                         Thread.sleep(3000);
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-
                     boolean marcadoCPU = grupoTableros.marcarCasilla(x, y, jugador2.getSimbolo());
+                    System.out.println(marcadoCPU);
+
                     if (!marcadoCPU) {
                         System.out.println("CPU no pudo marcar. Intenta de nuevo.");
                         continue;
@@ -816,13 +895,24 @@ public class JuegoBase implements Sujeto {
                     grupoTableros.imprimir();
                     char[][] plano = tableroDestinoInd.getTablero().getTablero();
                     char v = GrupoTableros.verificarGanador(plano);
-                    listTablero.add(x);
                     System.out.println("Resultado CPU: " + v);
+
+                    if (tableroDestinoInd.estaCompleto() && v == '-') {
+                        System.out.println("El tablero " + x + " ha quedado en empate.");
+                        ((JugadorHumano)jugador1).incrementarEmpatadas();
+                        ((JugadorHumano)jugador2).incrementarEmpatadas();
+                        Serializacion.guardarJugador(jugador1);
+                        Serializacion.guardarJugador(jugador2);
+                        jugadores = Serializacion.cargarJugadores();
+                        for (Jugador j : jugadores) {
+                            System.out.println(j);
+                        }
+                        tableroDestinoInd.rellenar('*');
+                    }
 
                     if (v == 'x' || v == 'o') {
                         if (jugador2 instanceof CPUFacil) {
-                            ((CPUFacil) jugador2).incrementarGanadas();
-                            Serializacion.guardarJugador(jugador2);
+                            tablero.actualizar(jugador2,jugador1);
                             jugadores = Serializacion.cargarJugadores();
                             for (Jugador j : jugadores) {
                                 System.out.println(j);
@@ -837,6 +927,8 @@ public class JuegoBase implements Sujeto {
                         aux = revisionMetaPlano;
                         break;
                     }
+
+
 
                     // TURNO JUGADOR 1
                     System.out.println("Turno de " + jugador1.getNombre());
@@ -863,8 +955,8 @@ public class JuegoBase implements Sujeto {
                     String entrada = input.nextLine();
                     if (entrada.equalsIgnoreCase("rendirse")) {
                         if (jugador2 instanceof JugadorHumano) {
-                            ((JugadorHumano) jugador2).incrementarGanadas();
-                            Serializacion.guardarJugador(jugador2);
+                            tablero.actualizar(jugador2,jugador1);
+
                             jugadores = Serializacion.cargarJugadores();
                             for (Jugador j : jugadores) {
                                 System.out.println(j);
@@ -900,13 +992,12 @@ public class JuegoBase implements Sujeto {
                     TableroIndividual tableroInd = (TableroIndividual) grupoTableros.getTablero(x);
                     plano = tableroInd.getTablero().getTablero();
                     v = GrupoTableros.verificarGanador(plano);
-                    listTablero.add(x);
                     System.out.println("Resultado Jugador 1: " + v);
 
                     if (v == 'x' || v == 'o') {
                         if (jugador1 instanceof JugadorHumano) {
-                            ((JugadorHumano) jugador1).incrementarGanadas();
-                            Serializacion.guardarJugador(jugador1);
+                            tablero.actualizar(jugador1,jugador2);
+
                             jugadores = Serializacion.cargarJugadores();
                             for (Jugador j : jugadores) {
                                 System.out.println(j);
@@ -921,18 +1012,29 @@ public class JuegoBase implements Sujeto {
                         aux = revisionMetaPlano;
                         break;
                     }
+                    if (tableroInd.estaCompleto() && v == '-') {
+                        System.out.println("El tablero " + x + " ha quedado en empate.");
+                        ((JugadorHumano)jugador1).incrementarEmpatadas();
+                        ((JugadorHumano)jugador2).incrementarEmpatadas();
+                        Serializacion.guardarJugador(jugador1);
+                        Serializacion.guardarJugador(jugador2);
+                        jugadores = Serializacion.cargarJugadores();
+                        for (Jugador j : jugadores) {
+                            System.out.println(j);
+                        }
+                        tableroInd.rellenar('*');
+                    }
+
 
                     turno++;
                 }
 
             }
 
-            // Jugador 1 pierde, pero es cpu - hard
 
             else if (tipoJ2.equals("cpu-hard")) {
-                System.out.println("entreaqui");
                 while (aux != -1) {
-                    // ======= TURNO DE CPU PRIMERO =======
+                    //  TURNO DE CPU
                     int tableroDestino;
                     if (turno < 1) {
                         tableroDestino = yElegida;
@@ -941,7 +1043,7 @@ public class JuegoBase implements Sujeto {
                     }
                     TableroIndividual tableroDestinoInd = (TableroIndividual) grupoTableros.getTablero(tableroDestino);
 
-                    // --- CPU Juega ---
+
                     tableroDestinoInd = (TableroIndividual) grupoTableros.getTablero(x);
                     char[][] tableroCPU = tableroDestinoInd.getTablero().getTablero();
                     y = jugador2.hacerJugada(tableroCPU);
@@ -962,13 +1064,24 @@ public class JuegoBase implements Sujeto {
                     grupoTableros.imprimir();
                     char[][] plano = tableroDestinoInd.getTablero().getTablero();
                     char v = GrupoTableros.verificarGanador(plano);
-                    listTablero.add(x);
                     System.out.println("Resultado CPU: " + v);
+                    if (tableroDestinoInd.estaCompleto() && v == '-') {
+                        System.out.println("El tablero " + x + " ha quedado en empate.");
+                        ((JugadorHumano)jugador1).incrementarEmpatadas();
+                        ((JugadorHumano)jugador2).incrementarEmpatadas();
+                        Serializacion.guardarJugador(jugador1);
+                        Serializacion.guardarJugador(jugador2);
+                        jugadores = Serializacion.cargarJugadores();
+                        for (Jugador j : jugadores) {
+                            System.out.println(j);
+                        }
+                        tableroDestinoInd.rellenar('*');
+                    }
+
 
                     if (v == 'x' || v == 'o') {
-                        if (jugador2 instanceof CPUFacil) {
-                            ((CPUFacil) jugador2).incrementarGanadas();
-                            Serializacion.guardarJugador(jugador2);
+                        if (jugador2 instanceof CPUDificil) {
+                            tablero.actualizar(jugador2,jugador1);
                             jugadores = Serializacion.cargarJugadores();
                             for (Jugador j : jugadores) {
                                 System.out.println(j);
@@ -984,7 +1097,7 @@ public class JuegoBase implements Sujeto {
                         break;
                     }
 
-                    // ======= TURNO DE JUGADOR HUMANO =======
+                    //TURNO DE JUGADOR HUMANO
                     System.out.println("Turno de " + jugador1.getNombre());
                     if (turno < 1) {
                         tableroDestino = y;
@@ -1006,8 +1119,7 @@ public class JuegoBase implements Sujeto {
                     String entrada = input.nextLine();
                     if (entrada.equalsIgnoreCase("rendirse")) {
                         if (jugador2 instanceof JugadorHumano) {
-                            ((JugadorHumano) jugador2).incrementarGanadas();
-                            Serializacion.guardarJugador(jugador2);
+                            tablero.actualizar(jugador2,jugador1);
                             jugadores = Serializacion.cargarJugadores();
                             for (Jugador j : jugadores) {
                                 System.out.println(j);
@@ -1041,13 +1153,11 @@ public class JuegoBase implements Sujeto {
                     tableroDestinoInd = (TableroIndividual) grupoTableros.getTablero(x);
                     plano = tableroDestinoInd.getTablero().getTablero();
                     v = GrupoTableros.verificarGanador(plano);
-                    listTablero.add(x);
                     System.out.println("Resultado Jugador 1: " + v);
 
                     if (v == 'x' || v == 'o') {
                         if (jugador1 instanceof JugadorHumano) {
-                            ((JugadorHumano) jugador1).incrementarGanadas();
-                            Serializacion.guardarJugador(jugador1);
+                            tablero.actualizar(jugador1,jugador2);
                             jugadores = Serializacion.cargarJugadores();
                             for (Jugador j : jugadores) {
                                 System.out.println(j);
@@ -1062,6 +1172,19 @@ public class JuegoBase implements Sujeto {
                         aux = revisionMetaPlano;
                         break;
                     }
+                    if (tableroDestinoInd.estaCompleto() && v == '-') {
+                        System.out.println("El tablero " + x + " ha quedado en empate.");
+                        ((JugadorHumano)jugador1).incrementarEmpatadas();
+                        ((JugadorHumano)jugador2).incrementarEmpatadas();
+                        Serializacion.guardarJugador(jugador1);
+                        Serializacion.guardarJugador(jugador2);
+                        jugadores = Serializacion.cargarJugadores();
+                        for (Jugador j : jugadores) {
+                            System.out.println(j);
+                        }
+                        tableroDestinoInd.rellenar('*');
+                    }
+
 
                     turno++;
                 }

@@ -40,4 +40,30 @@ public class JugadorHumano implements Jugador, Serializable {
     public void incrementarGanadas() {
         ganadas++;
     }
+    public void incrementarPerdidas(){perdidas++;}
+    public void incrementarEmpatadas(){perdidas++;}
+
+    public int getGanadas() {
+        return ganadas;
+    }
+    
+    public int getEmpatadas() {
+        return empatadas;
+    }
+
+    public void setGanadas(int ganadas) {
+        this.ganadas = ganadas;
+    }
+
+    public void setPerdidas(int perdidas) {
+        this.perdidas = perdidas;
+    }
+
+    public void setEmpatadas(int empatadas) {
+        this.empatadas = empatadas;
+    }
+
+    public int getPerdidas() {
+        return perdidas;
+    }
 }

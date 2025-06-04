@@ -1,4 +1,4 @@
 public interface Observer{
-    void actualizar();
+    void actualizar(Jugador ganador,Jugador perdedor);
 
 }

@@ -23,9 +23,11 @@ class CPUFacil implements Jugador, Serializable {
     public int hacerJugada(char[][] tablero) {
         int pos;
         do {
+
             pos = random.nextInt(9)+1 ;
+
         }while (!esValida(pos,tablero));
-        {;
+        {
             System.out.println("CPU (fácil) elige POSICIÓN: " + pos);
             return pos;
 
@@ -49,5 +51,31 @@ class CPUFacil implements Jugador, Serializable {
     }
     public void incrementarGanadas() {
         ganadas++;
+    }
+    public void incrementarPerdidas(){perdidas++;}
+    public void incrementarEmpatadas(){perdidas++;}
+
+    public int getGanadas() {
+        return ganadas;
+    }
+
+    public int getEmpatadas() {
+        return empatadas;
+    }
+
+    public void setGanadas(int ganadas) {
+        this.ganadas = ganadas;
+    }
+
+    public void setPerdidas(int perdidas) {
+        this.perdidas = perdidas;
+    }
+
+    public void setEmpatadas(int empatadas) {
+        this.empatadas = empatadas;
+    }
+
+    public int getPerdidas() {
+        return perdidas;
     }
 }

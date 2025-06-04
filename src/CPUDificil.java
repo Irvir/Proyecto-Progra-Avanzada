@@ -17,55 +17,52 @@ public class CPUDificil implements Jugador, Serializable {
 
     @Override
     public int hacerJugada(char[][] tablero) {
-        // 1. Intentar ganar
         for (int i = 1; i <= 9; i++) {
             int fila = (i - 1) / 3;
             int col = (i - 1) % 3;
             if (tablero[fila][col] == '-') {
-                tablero[fila][col] = 'O';  // Suponiendo que la CPU juega con 'O'
-                // Revisar si la CPU gana con este movimiento
+                //Simbolo por el cual es simbolo
+                tablero[fila][col] = simbolo;
                 if (
-                        (tablero[fila][0] == 'O' && tablero[fila][1] == 'O' && tablero[fila][2] == 'O') ||
-                                (tablero[0][col] == 'O' && tablero[1][col] == 'O' && tablero[2][col] == 'O') ||
-                                (fila == col && tablero[0][0] == 'O' && tablero[1][1] == 'O' && tablero[2][2] == 'O') ||
-                                (fila + col == 2 && tablero[0][2] == 'O' && tablero[1][1] == 'O' && tablero[2][0] == 'O')
+                        (tablero[fila][0] == simbolo && tablero[fila][1] == simbolo && tablero[fila][2] == simbolo) ||
+                                (tablero[0][col] == simbolo && tablero[1][col] == simbolo && tablero[2][col] == simbolo) ||
+                                (fila == col && tablero[0][0] == simbolo && tablero[1][1] == simbolo && tablero[2][2] == simbolo) ||
+                                (fila + col == 2 && tablero[0][2] == simbolo && tablero[1][1] == simbolo && tablero[2][0] == simbolo)
                 ) {
-                    tablero[fila][col] = '-';  // Deshacer simulación
+                    tablero[fila][col] = '-';
                     System.out.println("CPU (difícil) elige: " + i + " (ganar)");
                     return i;
                 }
-                tablero[fila][col] = '-';  // Deshacer simulación
+                tablero[fila][col] = '-';
             }
         }
 
-        // 2. Bloquear al jugador si puede ganar
+        char simboloPerdedor = (simbolo == 'o')?'x':'o';
         for (int i = 1; i <= 9; i++) {
             int fila = (i - 1) / 3;
             int col = (i - 1) % 3;
             if (tablero[fila][col] == '-') {
-                tablero[fila][col] = 'X';  // Suponiendo que el jugador usa 'X'
-                // Revisar si el jugador ganaría
+                tablero[fila][col] = simboloPerdedor;
+
                 if (
-                        (tablero[fila][0] == 'X' && tablero[fila][1] == 'X' && tablero[fila][2] == 'X') ||
-                                (tablero[0][col] == 'X' && tablero[1][col] == 'X' && tablero[2][col] == 'X') ||
-                                (fila == col && tablero[0][0] == 'X' && tablero[1][1] == 'X' && tablero[2][2] == 'X') ||
-                                (fila + col == 2 && tablero[0][2] == 'X' && tablero[1][1] == 'X' && tablero[2][0] == 'X')
+                        (tablero[fila][0] == simboloPerdedor && tablero[fila][1] == simboloPerdedor && tablero[fila][2] == simboloPerdedor) ||
+                                (tablero[0][col] == simbolo && tablero[1][col] == simboloPerdedor && tablero[2][col] == simboloPerdedor) ||
+                                (fila == col && tablero[0][0] == simboloPerdedor && tablero[1][1] == simboloPerdedor && tablero[2][2] == simboloPerdedor) ||
+                                (fila + col == 2 && tablero[0][2] == simboloPerdedor && tablero[1][1] == simboloPerdedor && tablero[2][0] == simboloPerdedor)
                 ) {
-                    tablero[fila][col] = '-';  // Deshacer simulación
+                    tablero[fila][col] = '-';
                     System.out.println("CPU (difícil) elige: " + i + " (bloqueo)");
                     return i;
                 }
-                tablero[fila][col] = '-';  // Deshacer simulación
+                tablero[fila][col] = '-';
             }
         }
 
-        // 3. Tomar el centro si está libre
         if (tablero[1][1] == '-') {
             System.out.println("CPU (difícil) elige: 5 (centro)");
             return 5;
         }
 
-        // 4. Tomar las esquinas si hay
         int[] esquinas = {1, 3, 7, 9};
         for (int idx = 0; idx < 4; idx++) {
             int i = esquinas[idx];
@@ -77,7 +74,6 @@ public class CPUDificil implements Jugador, Serializable {
             }
         }
 
-        // 5. Tomar cualquier casilla libre
         for (int i = 1; i <= 9; i++) {
             int fila = (i - 1) / 3;
             int col = (i - 1) % 3;
@@ -87,7 +83,6 @@ public class CPUDificil implements Jugador, Serializable {
             }
         }
 
-        // 6. No hay jugadas posibles
         return -1;
     }
 
@@ -104,5 +99,31 @@ public class CPUDificil implements Jugador, Serializable {
     }
     public void incrementarGanadas() {
         ganadas++;
+    }
+    public void incrementarPerdidas(){perdidas++;}
+    public void incrementarEmpatadas(){perdidas++;}
+
+    public int getGanadas() {
+        return ganadas;
+    }
+
+    public int getEmpatadas() {
+        return empatadas;
+    }
+
+    public void setGanadas(int ganadas) {
+        this.ganadas = ganadas;
+    }
+
+    public void setPerdidas(int perdidas) {
+        this.perdidas = perdidas;
+    }
+
+    public void setEmpatadas(int empatadas) {
+        this.empatadas = empatadas;
+    }
+
+    public int getPerdidas() {
+        return perdidas;
     }
 }
